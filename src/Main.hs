@@ -7,10 +7,14 @@ import qualified Data.ByteString.Internal as BS (c2w, w2c)
 import qualified Data.ByteString.Lazy as L
 import           Data.List
 import           Network.HTTP.Conduit
+import           System.IO
 
 import           FilterListsParser (loadFilterLists, FilterList, url, enabled)
 
 lf = BS.c2w '\n'
+putStr' arg = putStr arg >> hFlush stdout
+putStrLn' arg = putStrLn arg >> hFlush stdout
+print' arg    = print arg >> hFlush stdout
 
 -- | Loads filter list from a file
 loadFilterListsFromFile :: String -> IO (Either String [FilterList])
@@ -40,20 +44,22 @@ downloadLists urlList   = extractLines responses where
 -- | Downloads rules list from URL, prints error if any occurs
 safeDownload :: String -> IO L.ByteString
 safeDownload url = do
+        putStr' $ "downloading rules from: " ++ url
         response <- try $ simpleHttp url
         case response of
             Left e -> do
-                print (e :: HttpException)
+                putStrLn' ""
+                print' (e :: HttpException)
                 return L.empty
             Right response -> do
-                putStrLn $ "downloaded rules from: " ++ url
+                putStrLn' " [DONE]"
                 return response
 
 
 -- | Merges rules to unique list
 -- takes List of list of rules, merges them, removes comments and creates unique list, which can be written to the file
 mergeLists :: [[L.ByteString]] -> L.ByteString
-mergeLists = L.intercalate (L.singleton lf) . nub . concat
+mergeLists = L.intercalate (L.singleton lf) . concat
 
 
 listsFileName = "filter-lists.json"
@@ -61,12 +67,13 @@ outputFileName = "rules.txt"
 
 
 main = do
-    putStrLn "adblock filters combiner"
+    putStrLn' "adblock filters combiner"
     filterLists <- loadFilterListsFromFile listsFileName
-    putStrLn $ "loaded lists from " ++ listsFileName
+    putStrLn' $ "loaded lists from " ++ listsFileName
     outputList <- downloadAndMergeLists filterLists
-    putStrLn "downloaded lists"
     case outputList of
-        Left e              -> putStrLn e
-        Right mergedList    -> L.writeFile outputFileName mergedList
-    putStrLn "done"
+        Left e              -> putStrLn' e
+        Right mergedList    -> do
+            L.writeFile outputFileName mergedList
+            putStrLn' "lists download completed"
+

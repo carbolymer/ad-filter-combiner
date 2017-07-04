@@ -157,7 +157,7 @@
 		"group": "privacy"
 	},
 	"https://www.certyficate.it/adblock/adblock.txt": {
-		"off": true,
+		"off": false,
 		"title": "POL: polskie filtry do Adblocka i uBlocka",
 		"group": "regions",
 		"lang": "pl",
@@ -231,6 +231,7 @@
 		"supportURL": "http://www.malwaredomains.com/"
 	},
 	"mirror1.malwaredomains.com/files/justdomains": {
+		"off": true,
 		"title": "Malware domains",
 		"group": "malware",
 		"homeURL": "https://mirror.cedia.org.ec/malwaredomains/justdomains",
@@ -296,7 +297,7 @@
 		"supportURL": "http://winhelp2002.mvps.org/"
 	},
 	"https://www.fanboy.co.nz/enhancedstats.txt": {
-		"off": true,
+		"off": false,
 		"title": "Fanboy’s Enhanced Tracking List",
 		"group": "privacy",
 		"supportURL": "https://forums.lanik.us/"
@@ -354,6 +355,7 @@
 		"supportURL": "https://forums.lanik.us/"
 	},
 	"www.malwaredomainlist.com/hostslist/hosts.txt": {
+		"off": true,
 		"title": "Malware Domain List",
 		"group": "malware",
 		"homeURL": "https://www.malwaredomainlist.com/hostslist/hosts.txt"

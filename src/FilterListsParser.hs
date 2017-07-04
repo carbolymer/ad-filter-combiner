@@ -17,6 +17,7 @@ where
 import           Data.Aeson (FromJSON, Object, decode, eitherDecode)
 import qualified Data.ByteString.Char8 as C
 import qualified Data.ByteString.Lazy as L
+import qualified Data.List as DL
 import           Data.Maybe (fromMaybe)
 import           Data.Map (Map, assocs)
 import           Data.Text (Text)
@@ -47,13 +48,15 @@ instance FromJSON JsonFilterList
 
 createDto :: (String, JsonFilterList) -> FilterList
 createDto (filterListUrl, jfl) = FL {
-        url         = filterListUrl,
+        url         = fixUrl filterListUrl,
         enabled     = not $ fromMaybe False (off jfl),
         name        = title jfl,
         filterGroup = group jfl,
         language    = lang jfl,
         supportUrl  = supportURL jfl
-    }
+    } where
+        fixUrl urlFromJson | "http" `DL.isPrefixOf` urlFromJson = urlFromJson
+                           | otherwise                       = "http://" ++ urlFromJson
 
 decodeJson :: JSONString -> Either String (Map String JsonFilterList)
 decodeJson = eitherDecode
