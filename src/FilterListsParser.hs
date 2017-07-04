@@ -22,6 +22,9 @@ import           Data.Map (Map, assocs)
 import           Data.Text (Text)
 import           GHC.Generics (Generic)
 
+type JSONString = L.ByteString
+
+-- | Data object returned from this module
 data FilterList = FL {
     url         :: !String,
     enabled     :: !Bool,
@@ -31,6 +34,7 @@ data FilterList = FL {
     supportUrl  :: Maybe Text
 }
 
+-- | Single JSON entry in the filter lists file
 data JsonFilterList = JFL {
     off         :: Maybe Bool,
     title       :: !Text,
@@ -44,21 +48,17 @@ instance FromJSON JsonFilterList
 createDto :: (String, JsonFilterList) -> FilterList
 createDto (filterListUrl, jfl) = FL {
         url         = filterListUrl,
-        enabled     = fromMaybe False (off jfl),
+        enabled     = not $ fromMaybe False (off jfl),
         name        = title jfl,
         filterGroup = group jfl,
         language    = lang jfl,
         supportUrl  = supportURL jfl
     }
 
-decodeJson :: L.ByteString -> Either String (Map String JsonFilterList)
+decodeJson :: JSONString -> Either String (Map String JsonFilterList)
 decodeJson = eitherDecode
 
-loadFilterLists :: L.ByteString -> Either String [FilterList]
-loadFilterLists jsonString = mapToList <$> (decodeJson jsonString)
-
-
-mapToList :: Map String JsonFilterList -> [FilterList]
-mapToList = ((map createDto) . assocs)
-
-
+-- | Transforms JSON file bytestring into either with list of filter lists
+loadFilterLists :: JSONString -> Either String [FilterList]
+loadFilterLists jsonString = mapToFilterList <$> (decodeJson jsonString) where
+    mapToFilterList = map createDto . assocs
